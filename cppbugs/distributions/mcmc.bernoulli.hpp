@@ -28,9 +28,9 @@ namespace cppbugs {
   template <typename T,typename U>
   class BernoulliLikelihiood : public Likelihiood {
     const T& x_;
-    const U& p_;
+    const U p_;
   public:
-    BernoulliLikelihiood(const T& x, const U& p): x_(x), p_(p) { dimension_check(x_, p_); }
+    BernoulliLikelihiood(const T& x, const U& p) : x_(x), p_(p) { dimension_check(x_, p_); }
     inline double calc() const {
       return bernoulli_logp(x_,p_);
     }
@@ -63,14 +63,14 @@ namespace cppbugs {
     }
 
   public:
-    Bernoulli(T& value): DynamicStochastic<T>(value) {}
+    Bernoulli(T value): DynamicStochastic<T>(value) {}
 
     void jump(RngBase& rng) {
       bernoulli_jump(rng, DynamicStochastic<T>::value, DynamicStochastic<T>::scale_);
     }
 
     template<typename U>
-    Bernoulli<T>& dbern(const U& p) {
+    Bernoulli<T>& dbern(/*const*/ U&& p) {
       Stochastic::likelihood_functor = new BernoulliLikelihiood<T,U>(DynamicStochastic<T>::value,p);
       return *this;
     }
@@ -82,7 +82,7 @@ namespace cppbugs {
     ObservedBernoulli(const T& value): Observed<T>(value) {}
 
     template<typename U>
-    ObservedBernoulli<T>& dbern(const U& p) {
+    ObservedBernoulli<T>& dbern(/*const*/ U&& p) {
       Stochastic::likelihood_functor = new BernoulliLikelihiood<T,U>(Observed<T>::value,p);
       return *this;
     }

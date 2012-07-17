@@ -11,8 +11,6 @@ using std::cout;
 using std::endl;
 
 int main() {
-  const double zero(0),one_hundred(100),one_thousand(1000), one_e3(0.001);
-
   int incidence_raw[] = {2,3,4,0,3,1,1,8,2,0,2,2,0,2,0,5,0,0,1,3,0,0,1,8,1,3,0,12,2,0,0,0,1,1,0,2,0,5,3,1,2,1,0,0,1,2,0,0,11,0,0,0,1,1,1,0};
   int size_raw[] = {14,12,9,5,22,18,21,22,16,16,20,10,10,9,6,18,25,24,4,17,17,18,20,16,10,9,5,34,9,6,8,6,22,22,18,22,25,27,22,22,10,8,6,5,21,24,19,23,19,2,3,2,19,15,15,15};
   unsigned int herd_raw[] = {1,1,1,1,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15};
@@ -50,11 +48,11 @@ int main() {
   };
 
   MCModel<boost::minstd_rand> m(model);
-  m.track<Normal>(b).dnorm(zero,one_e3);
-  m.track<Uniform>(tau_overdisp).dunif(zero,one_thousand);
-  m.track<Uniform>(tau_b_herd).dunif(zero,one_hundred);
-  m.track<Normal>(b_herd).dnorm(zero, tau_b_herd);
-  m.track<Normal>(overdisp).dnorm(zero,tau_overdisp);
+  m.track<Normal>(b).dnorm(0,0.001);
+  m.track<Uniform>(tau_overdisp).dunif(0,1000);
+  m.track<Uniform>(tau_b_herd).dunif(0,100);
+  m.track<Normal>(b_herd).dnorm(0, tau_b_herd);
+  m.track<Normal>(overdisp).dnorm(0,tau_overdisp);
   m.track<ObservedBinomial>(incidence).dbinom(size,phi);
   m.track<Deterministic>(sigma_overdisp);
   m.track<Deterministic>(sigma_b_herd);

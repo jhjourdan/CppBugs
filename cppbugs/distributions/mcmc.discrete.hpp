@@ -25,40 +25,58 @@
 
 namespace cppbugs {
 
-  class DiscreteLikelihiood : public Likelihiood {
-    const int& x_;
-    const arma::vec& p_;
+  template<typename T, typename U, typename Enable = void>
+  class DiscreteLikelihiood;
+  
+  template<typename T, typename U>
+  class DiscreteLikelihiood<T, U, typename std::enable_if<std::is_integral<T>::value>::type> : public Likelihiood {
+    const T& x_;
+    const U p_;
   public:
-    DiscreteLikelihiood(const int& x, const arma::vec& p): x_(x), p_(p) { }
+    DiscreteLikelihiood(const T& x, const U& p): x_(x), p_(p) { }
     inline double calc() const {
       if(x_ < 0 || x_ >= (int)p_.n_elem)
-	return -std::numeric_limits<double>::infinity();
+        return -std::numeric_limits<double>::infinity();
       return log_approx(p_[x_]);
     }
   };
 
-  template<typename T> class Discrete;
-
-  template<>
-  class Discrete<int> : public DynamicStochastic<int> {
+  template<typename T, typename U>
+  class DiscreteLikelihiood<T, U, typename std::enable_if<std::is_integral<typename T::elem_type>::value>::type> : public Likelihiood {
+    const T& x_;
+    const U p_;
   public:
-    Discrete(int& value): DynamicStochastic<int>(value) {}
+    DiscreteLikelihiood(const T& x, const U& p): x_(x), p_(p) { }
+    inline double calc() const {
+      if(any(x_ < 0) || any(x_ >= (int)p_.n_elem))
+        return -std::numeric_limits<double>::infinity();
+      double sum = 0;
+      for(int i = 0; i < x_.n_elem; i++)
+        sum += log_approx(p_[x_[i]]);
+      return sum;
+    }
+  };
 
-    Discrete<int>& ddiscr(const arma::vec& p) {
-      Stochastic::likelihood_functor = new DiscreteLikelihiood(DynamicStochastic<int>::value,p);
+  template<typename T> 
+  class Discrete : public DynamicStochastic<T> {
+  public:
+    Discrete(T value): DynamicStochastic<T>(value) {}
+
+    template<typename U>
+    Discrete<T>& ddiscr(/*const*/ U&& distr) {
+      Stochastic::likelihood_functor = new DiscreteLikelihiood<T, U>(DynamicStochastic<T>::value,distr);
       return *this;
     }
   };
 
-  template<typename T> class ObservedDiscrete;
-
-  template<>
-  class ObservedDiscrete<int> : public Observed<int> {
+  template<typename T>
+  class ObservedDiscrete : public Observed<T> {
   public:
-    ObservedDiscrete(const int& value): Observed<int>(value) {}
+    ObservedDiscrete(const T& value): Observed<T>(value) {}
 
-    ObservedDiscrete<int>& ddiscr(const arma::vec& p) {
-      Stochastic::likelihood_functor = new DiscreteLikelihiood(Observed<int>::value,p);
+    template<typename U>
+    ObservedDiscrete<int>& ddiscr(/*const*/ U&& distr) {
+      Stochastic::likelihood_functor = new DiscreteLikelihiood<T,U>(Observed<T>::value,distr);
       return *this;
     }
   };

@@ -27,10 +27,10 @@ namespace cppbugs {
   template <typename T,typename U, typename V>
   class NormalLikelihiood : public Likelihiood {
     const T& x_;
-    const U& mu_;
-    const V& tau_;
+    const U mu_;
+    const V tau_;
   public:
-    NormalLikelihiood(  const T& x,  const U& mu,  const V& tau): x_(x), mu_(mu), tau_(tau) { dimension_check(x_, mu_, tau_); }
+    NormalLikelihiood(const T& x, const U& mu, const V& tau): x_(x), mu_(mu), tau_(tau) { dimension_check(x_, mu_, tau_); }
     inline double calc() const {
       return normal_logp(x_,mu_,tau_);
     }
@@ -39,10 +39,10 @@ namespace cppbugs {
   template<typename T>
   class Normal : public DynamicStochastic<T> {
   public:
-    Normal(T& value): DynamicStochastic<T>(value) {}
+    Normal(T value): DynamicStochastic<T>(value) {}
 
     template<typename U, typename V>
-    Normal<T>& dnorm(const U& mu, const V& tau) {
+    Normal<T>& dnorm(/*const*/ U&& mu, /*const*/ V&& tau) {
       Stochastic::likelihood_functor = new NormalLikelihiood<T,U,V>(DynamicStochastic<T>::value,mu,tau);
       return *this;
     }
@@ -54,7 +54,7 @@ namespace cppbugs {
     ObservedNormal(const T& value): Observed<T>(value) {}
 
     template<typename U, typename V>
-    ObservedNormal<T>& dnorm(const U& mu, const V& tau) {
+    ObservedNormal<T>& dnorm(/*const*/ U&& mu, /*const*/ V&& tau) {
       Stochastic::likelihood_functor = new NormalLikelihiood<T,U,V>(Observed<T>::value,mu,tau);
       return *this;
     }

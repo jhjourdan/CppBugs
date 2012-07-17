@@ -30,7 +30,6 @@
 
 namespace cppbugs {
   typedef std::map<void*,MCMCObject*> vmc_map;
-  typedef std::map<void*,MCMCObject*>::iterator vmc_map_iter;
 
   template<class RNG>
   class MCModel {
@@ -215,18 +214,10 @@ namespace cppbugs {
     }
 
     template<template<typename> class MCTYPE, typename T>
-    MCTYPE<T>& track(T& x) {
-      MCTYPE<T>* node = new MCTYPE<T>(x);
+    MCTYPE<T>& track(T&& x) {
+      MCTYPE<T> *node = new MCTYPE<T>(std::forward<T>(x));
       mcmcObjects.push_back(node);
-      data_node_map[(void*)(&x)] = node;
-      return *node;
-    }
-
-    template<template<typename> class MCTYPE, typename T>
-    MCTYPE<T>& track(const T& x) {
-      MCTYPE<T>* node = new MCTYPE<T>(x);
-      mcmcObjects.push_back(node);
-      data_node_map[(void*)(&x)] = node;
+      data_node_map[std::is_lvalue_reference<T>::value ? (void*)(&x) : (void*)this] = node;
       return *node;
     }
 
@@ -237,12 +228,12 @@ namespace cppbugs {
     }
 
     template<typename T>
-    MCMCSpecialized<T>& getNode(const T& x) {
-      vmc_map_iter iter = data_node_map.find((void*)(&x));
+    Dynamic<T&>& getNode(const T& x) {
+      auto iter = data_node_map.find((void*)(&x));
       if(iter == data_node_map.end()) {
         throw std::logic_error("node not found.");
       }
-      MCMCSpecialized<T>* ans = dynamic_cast<MCMCSpecialized<T>*>(iter->second);
+      Dynamic<T&>* ans = dynamic_cast<Dynamic<T&>*>(iter->second);
       if(ans == nullptr) {
         throw std::logic_error("invalid node conversion.");
       }

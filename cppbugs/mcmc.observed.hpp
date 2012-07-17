@@ -18,18 +18,18 @@
 #ifndef MCMC_OBSERVED_HPP
 #define MCMC_OBSERVED_HPP
 
-#include <cppbugs/mcmc.specialized.hpp>
 #include <cppbugs/mcmc.stochastic.hpp>
+#include <cppbugs/mcmc.object.hpp>
 
 namespace cppbugs {
 
   template<typename T>
-  class Observed : public MCMCSpecialized<T>, public Stochastic {
+  class Observed : public MCMCObject, public Stochastic {
   public:
-    const T& value;
-    Observed(const T& shape): MCMCSpecialized<T>(), value(shape) {}
+    const T value;
+    Observed(const T& shape): MCMCObject(), value(shape) {}
 
-    void jump(RngBase& rng) {}
+    void jump(RngBase&) {}
     void accept() {}
     void reject() {}
     void tune() {}
@@ -39,7 +39,7 @@ namespace cppbugs {
     bool isDeterministc() const { return false; }
     bool isStochastic() const { return true; }
     bool isObserved() const { return true; }
-    void setScale(const double scale) {}
+    void setScale(const double) {}
     double getScale() const { return 0; }
     double size() const { return 0; }
   };

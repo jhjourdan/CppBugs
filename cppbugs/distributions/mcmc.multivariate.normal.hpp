@@ -24,13 +24,13 @@
 
 namespace cppbugs {
 
-  template <typename T,typename U>
+  template <typename T,typename U, typename V>
   class MultivariateNormalLikelihiood : public Likelihiood {
     const T& x_;
-    const U& mu_;
-    const arma::mat& sigma_;
+    const U mu_;
+    const V sigma_;
   public:
-    MultivariateNormalLikelihiood(const T& x,  const U& mu,  const arma::mat& sigma): x_(x), mu_(mu), sigma_(sigma)
+    MultivariateNormalLikelihiood(const T& x,  const U& mu,  const V& sigma): x_(x), mu_(mu), sigma_(sigma)
     {
       // need a modified dimension check
       dimension_check(x_, mu_);
@@ -46,10 +46,10 @@ namespace cppbugs {
   template<typename T>
   class MultivariateNormal : public DynamicStochastic<T> {
   public:
-    MultivariateNormal(T& value): DynamicStochastic<T>(value) {}
+    MultivariateNormal(T value): DynamicStochastic<T>(value) {}
 
-    template<typename U>
-    MultivariateNormal<T>& dmvnorm(const U& mu, const arma::mat& sigma) {
+    template<typename U, typename V>
+    MultivariateNormal<T>& dmvnorm(/*const*/ U&& mu, /*const*/ V&& sigma) {
       Stochastic::likelihood_functor = new MultivariateNormalLikelihiood<T,U>(DynamicStochastic<T>::value,mu,sigma);
       return *this;
     }
@@ -60,8 +60,8 @@ namespace cppbugs {
   public:
     ObservedMultivariateNormal(const T& value): Observed<T>(value) {}
 
-    template<typename U>
-    ObservedMultivariateNormal<T>& dmvnorm(const U& mu, const arma::mat& sigma) {
+    template<typename U, typename V>
+    ObservedMultivariateNormal<T>& dmvnorm(/*const*/ U&& mu, /*const*/ V&& sigma) {
       Stochastic::likelihood_functor = new MultivariateNormalLikelihiood<T,U>(Observed<T>::value,mu,sigma);
       return *this;
     }

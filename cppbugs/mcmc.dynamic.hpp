@@ -19,25 +19,50 @@
 #define MCMC_DYNAMIC_HPP
 
 #include <list>
-#include <cppbugs/mcmc.specialized.hpp>
 #include <cppbugs/mcmc.math.hpp>
+#include <cppbugs/mcmc.object.hpp>
 
 namespace cppbugs {
 
   template<typename T>
-  class Dynamic : public MCMCSpecialized<T> {
+  class Dynamic;
+
+  template<typename T>
+  class Dynamic<T&> : public MCMCObject {
+    bool save_history_;
+
   public:
+    std::list<T> history;
     T& value;
     T old_value;
-    Dynamic(T& shape): MCMCSpecialized<T>(), value(shape), old_value(shape) {}
 
-    static int sum_dims(const double& value) { return 1; }
-    static int sum_dims(const arma::mat& value) { return value.n_elem; }
-    static int sum_dims(const arma::ivec& value) { return value.n_elem; }
+    Dynamic(T& shape): MCMCObject(), save_history_(true), value(shape), old_value(shape) {}
+
+    static void fill(arma::ivec& x) { x.fill(0); }
+    static void fill(arma::mat& x) { x.fill(0); }
+    static void fill(double& x) { x = 0; }
+    static void fill(int& x) { x = 0; }
+
+    T mean() const {
+      if(history.size() == 0) {
+        return T();
+      }
+
+      T ans(*history.begin());
+      fill(ans);
+      for(T v : history)
+        ans += v;
+      ans /= static_cast<double>(history.size());
+      return ans;
+    }
+
+    void setSaveHistory(const bool save_history) {
+      save_history_ = save_history;
+    }
 
     void preserve() { old_value = value; }
     void revert() { value = old_value; }
-    void tally() { if(MCMCSpecialized<T>::save_history_) { MCMCSpecialized<T>::history.push_back(value); } }
+    void tally() { if(save_history_) { history.push_back(value); } }
     double size() const { return dim_size(value); }
   };
 

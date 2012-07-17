@@ -87,8 +87,6 @@ void fixlog(vec& level) {
 }
 
 int main() {
-  const double zero(0),one_hundred(100),one_e3(0.001);
-
   string file("/home/warmstrong/dvl/scripts/mcmc/radon/srrs.csv");
   vector< vector<string> > rows;
   read_csv(file,rows);
@@ -120,10 +118,10 @@ int main() {
 
   MCModel<boost::minstd_rand> m(model);
   m.track<Normal>(a).dnorm(mu_a, tau_a);
-  m.track<Normal>(b).dnorm(zero, one_e3);
-  m.track<Normal>(mu_a).dnorm(zero, one_e3);
-  m.track<Uniform>(sigma_y).dunif(zero, one_hundred);
-  m.track<Uniform>(sigma_a).dunif(zero, one_hundred);
+  m.track<Normal>(b).dnorm(0, 0.001);
+  m.track<Normal>(mu_a).dnorm(0, 0.001);
+  m.track<Uniform>(sigma_y).dunif(0, 100);
+  m.track<Uniform>(sigma_a).dunif(0, 100);
   m.track<ObservedNormal>(level_const).dnorm(y_hat,tau_y);
   m.track<Deterministic>(tau_y);
   m.track<Deterministic>(tau_a);

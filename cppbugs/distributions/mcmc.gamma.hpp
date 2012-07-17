@@ -28,10 +28,10 @@ namespace cppbugs {
   template <typename T,typename U, typename V>
   class GammaLikelihiood : public Likelihiood {
     const T& x_;
-    const U& alpha_;
-    const V& beta_;
+    const U alpha_;
+    const V beta_;
   public:
-    GammaLikelihiood(const T& x,  const U& alpha,  const V& beta): x_(x), alpha_(alpha), beta_(beta) { dimension_check(x_, alpha_, beta_); }
+    GammaLikelihiood(const T& x, const U& alpha, const V& beta): x_(x), alpha_(alpha), beta_(beta) { dimension_check(x_, alpha_, beta_); }
     inline double calc() const {
       return gamma_logp(x_,alpha_,beta_);
     }
@@ -40,13 +40,13 @@ namespace cppbugs {
   template<typename T>
   class Gamma : public DynamicStochastic<T> {
   public:
-    Gamma(T& value): DynamicStochastic<T>(value) {}
+    Gamma(T value): DynamicStochastic<T>(value) {}
 
     // modified jumper to only take positive jumps
     void jump(RngBase& rng) { positive_jump_impl(rng, DynamicStochastic<T>::value,DynamicStochastic<T>::scale_); }
 
     template<typename U, typename V>
-    Gamma<T>& dgamma(const U& alpha, const V& beta) {
+    Gamma<T>& dgamma(/*const*/ U&& alpha, /*const*/ V&& beta) {
       Stochastic::likelihood_functor = new GammaLikelihiood<T,U,V>(DynamicStochastic<T>::value,alpha,beta);
       return *this;
     }
@@ -58,7 +58,7 @@ namespace cppbugs {
     ObservedGamma(const T& value): Observed<T>(value) {}
 
     template<typename U, typename V>
-    ObservedGamma<T>& dgamma(const U& alpha, const V& beta) {
+    ObservedGamma<T>& dgamma(/*const*/ U&& alpha, /*const*/ V&& beta) {
       Stochastic::likelihood_functor = new GammaLikelihiood<T,U,V>(Observed<T>::value,alpha,beta);
       return *this;
     }

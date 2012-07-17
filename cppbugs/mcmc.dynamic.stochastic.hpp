@@ -29,10 +29,9 @@ namespace cppbugs {
   template<typename T>
   class DynamicStochastic : public Dynamic<T>, public Stochastic  {
   protected:
-    bool observed_;
     double accepted_,rejected_,scale_,target_ar_;
   public:
-    DynamicStochastic(T& value): Dynamic<T>(value), accepted_(0), rejected_(0) {
+    DynamicStochastic(T value): Dynamic<T>(value), accepted_(0), rejected_(0) {
       const double scale_num = 2.38;
       double ideal_scale = sqrt(scale_num / pow(dim_size(Dynamic<T>::value),2));
       scale_ = ideal_scale > 1.0 ? 1.0 : ideal_scale;

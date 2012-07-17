@@ -10,8 +10,6 @@ using std::cout;
 using std::endl;
 
 int main() {
-  const double zero(0), one_e3(0.001);
-
   const int NR = 1e2;
   const int NC = 2;
   const ivec size = 1000 * ones<ivec>(NR);
@@ -32,7 +30,7 @@ int main() {
   };
 
   MCModel<boost::minstd_rand> m(model);
-  m.track<Normal>(b).dnorm(zero, one_e3);
+  m.track<Normal>(b).dnorm(0, 0.001);
   m.track<ObservedBinomial>(y).dbinom(size,p_hat);
   m.track<Deterministic>(rsq);
 

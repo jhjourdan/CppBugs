@@ -27,10 +27,10 @@ namespace cppbugs {
   template <typename T,typename U, typename V>
   class BetaLikelihiood : public Likelihiood {
     const T& x_;
-    const U& alpha_;
-    const V& beta_;
+    const U alpha_;
+    const V beta_;
   public:
-    BetaLikelihiood(  const T& x,  const U& alpha,  const V& beta): x_(x), alpha_(alpha), beta_(beta) { dimension_check(x_, alpha_, beta_); }
+    BetaLikelihiood(const T& x, const U& alpha, const V& beta): x_(x), alpha_(alpha), beta_(beta) { dimension_check(x_, alpha_, beta_); }
     inline double calc() const {
       return beta_logp(x_,alpha_,beta_);
     }
@@ -39,13 +39,13 @@ namespace cppbugs {
   template<typename T>
   class Beta : public DynamicStochastic<T> {
   public:
-    Beta(T& value): DynamicStochastic<T>(value) {}
+    Beta(T value): DynamicStochastic<T>(value) {}
 
     // modified jumper to only take jumps on (0,1) interval
     void jump(RngBase& rng) { bounded_jump_impl(rng, DynamicStochastic<T>::value,DynamicStochastic<T>::scale_, 0, 1); }
 
     template<typename U, typename V>
-    Beta<T>& dbeta(const U& alpha, const V& beta) {
+    Beta<T>& dbeta(/*const*/ U&& alpha, /*const*/ V&& beta) {
       Stochastic::likelihood_functor = new BetaLikelihiood<T,U,V>(DynamicStochastic<T>::value,alpha,beta);
       return *this;
     }
@@ -57,7 +57,7 @@ namespace cppbugs {
     ObservedBeta(const T& value): Observed<T>(value) {}
 
     template<typename U, typename V>
-    ObservedBeta<T>& dbeta(const U& alpha, const V& beta) {
+    ObservedBeta<T>& dbeta(/*const*/ U&& alpha, /*const*/ V&& beta) {
       Stochastic::likelihood_functor = new BetaLikelihiood<T,U,V>(Observed<T>::value,alpha,beta);
       return *this;
     }

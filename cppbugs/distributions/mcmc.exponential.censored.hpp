@@ -28,8 +28,8 @@ namespace cppbugs {
   template <typename T,typename U, typename V>
   class ExponentialCensoredLikelihiood : public Likelihiood {
     const T& x_;
-    const U& lambda_;
-    const V& delta_;
+    const U lambda_;
+    const V delta_;
   public:
     ExponentialCensoredLikelihiood(const T& x, const U& lambda, const V& delta): x_(x), lambda_(lambda), delta_(delta) { dimension_check(x_, lambda_, delta_); }
     inline double calc() const {
@@ -43,7 +43,7 @@ namespace cppbugs {
     ObservedExponentialCensored(const T& value): Observed<T>(value) {}
 
     template<typename U, typename V>
-    ObservedExponentialCensored<T>& dexpcens(const U& lambda, const V& delta) {
+    ObservedExponentialCensored<T>& dexpcens(/*const*/ U&& lambda, /*const*/ V&& delta) {
       Stochastic::likelihood_functor = new ExponentialCensoredLikelihiood<T,U,V>(Observed<T>::value,lambda,delta);
       return *this;
     }
