@@ -29,7 +29,7 @@ namespace cppbugs {
   class DiscreteLikelihiood;
   
   template<typename T, typename U>
-  class DiscreteLikelihiood<T, U, typename std::enable_if<std::is_integral<T>::value>::type> : public Likelihiood {
+  class DiscreteLikelihiood<T, U, typename std::enable_if<std::is_integral<typename std::remove_reference<T>::type>::value>::type> : public Likelihiood {
     const T& x_;
     const U p_;
   public:
@@ -42,7 +42,7 @@ namespace cppbugs {
   };
 
   template<typename T, typename U>
-  class DiscreteLikelihiood<T, U, typename std::enable_if<std::is_integral<typename T::elem_type>::value>::type> : public Likelihiood {
+  class DiscreteLikelihiood<T, U, typename std::enable_if<std::is_integral<typename std::remove_reference<T>::type::elem_type>::value>::type> : public Likelihiood {
     const T& x_;
     const U p_;
   public:
@@ -51,7 +51,7 @@ namespace cppbugs {
       if(any(x_ < 0) || any(x_ >= (int)p_.n_elem))
         return -std::numeric_limits<double>::infinity();
       double sum = 0;
-      for(int i = 0; i < x_.n_elem; i++)
+      for(unsigned i = 0; i < x_.n_elem; i++)
         sum += log_approx(p_[x_[i]]);
       return sum;
     }
@@ -76,7 +76,7 @@ namespace cppbugs {
 
     template<typename U>
     ObservedDiscrete<int>& ddiscr(/*const*/ U&& distr) {
-      Stochastic::likelihood_functor = new DiscreteLikelihiood<T,U>(Observed<T>::value,distr);
+      Stochastic::likelihood_functor = new DiscreteLikelihiood<T, U>(Observed<T>::value,distr);
       return *this;
     }
   };
