@@ -18,7 +18,7 @@
 #ifndef MCMC_DYNAMIC_HPP
 #define MCMC_DYNAMIC_HPP
 
-#include <list>
+#include <vector>
 #include <cppbugs/mcmc.math.hpp>
 #include <cppbugs/mcmc.object.hpp>
 
@@ -32,7 +32,7 @@ namespace cppbugs {
     bool save_history_;
 
   public:
-    std::list<T> history;
+    std::vector<T> history;
     T& value;
     T old_value;
 
