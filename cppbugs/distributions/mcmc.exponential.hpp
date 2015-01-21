@@ -41,9 +41,6 @@ namespace cppbugs {
   public:
     Exponential(T value): DynamicStochastic<T>(value) {}
 
-    // modified jumper to only take positive jumps
-    void jump(RngBase& rng) { positive_jump_impl(rng, DynamicStochastic<T>::value,DynamicStochastic<T>::scale_); }
-
     template<typename U>
     Exponential<T>& dexp(/*const*/ U&& lambda) {
       Stochastic::likelihood_functor = new ExponentialLikelihiood<T,U>(DynamicStochastic<T>::value,lambda);

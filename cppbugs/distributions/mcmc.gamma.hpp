@@ -42,9 +42,6 @@ namespace cppbugs {
   public:
     Gamma(T value): DynamicStochastic<T>(value) {}
 
-    // modified jumper to only take positive jumps
-    void jump(RngBase& rng) { positive_jump_impl(rng, DynamicStochastic<T>::value,DynamicStochastic<T>::scale_); }
-
     template<typename U, typename V>
     Gamma<T>& dgamma(/*const*/ U&& alpha, /*const*/ V&& beta) {
       Stochastic::likelihood_functor = new GammaLikelihiood<T,U,V>(DynamicStochastic<T>::value,alpha,beta);

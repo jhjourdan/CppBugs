@@ -41,9 +41,6 @@ namespace cppbugs {
   public:
     Beta(T value): DynamicStochastic<T>(value) {}
 
-    // modified jumper to only take jumps on (0,1) interval
-    void jump(RngBase& rng) { bounded_jump_impl(rng, DynamicStochastic<T>::value,DynamicStochastic<T>::scale_, 0, 1); }
-
     template<typename U, typename V>
     Beta<T>& dbeta(/*const*/ U&& alpha, /*const*/ V&& beta) {
       Stochastic::likelihood_functor = new BetaLikelihiood<T,U,V>(DynamicStochastic<T>::value,alpha,beta);
