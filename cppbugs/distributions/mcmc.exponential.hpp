@@ -32,6 +32,8 @@ namespace cppbugs {
   public:
     ExponentialLikelihiood(const T& x, const U& lambda): x_(x), lambda_(lambda) { dimension_check(x_, lambda_); }
     inline double calc() const {
+      if(!arma::all(x_ > 0))
+        return -std::numeric_limits<double>::infinity();
       return arma::accu(log_approx(lambda_) - arma::schur(lambda_, x_));
     }
   };
