@@ -23,7 +23,6 @@
 #include <vector>
 #include <map>
 #include <exception>
-#include <boost/random.hpp>
 #include <cppbugs/mcmc.rng.hpp>
 #include <cppbugs/mcmc.object.hpp>
 #include <cppbugs/mcmc.stochastic.hpp>
@@ -79,8 +78,6 @@ namespace cppbugs {
           dynamic_nodes.push_back(node);
         }
       }
-      // init values
-      update();
     }
 
     double acceptance_ratio() const {
@@ -93,6 +90,7 @@ namespace cppbugs {
 
     double logp() const {
       double ans(0);
+      update();
       for(auto f : logp_functors) {
         ans += f->calc();
       }
@@ -114,7 +112,6 @@ namespace cppbugs {
           old_logp_value = logp_value;
           it->preserve();
           it->jump(rng_);
-          update();
           logp_value = logp();
           if(reject(logp_value, old_logp_value)) {
             it->revert();
@@ -137,7 +134,6 @@ namespace cppbugs {
       old_logp_value_ = logp_value_;
       preserve();
       jump();
-      update();
       logp_value_ = logp();
       if(reject(logp_value_, old_logp_value_)) {
         revert();
@@ -149,6 +145,8 @@ namespace cppbugs {
     }
 
     void tune_global(int iterations, int tuning_step) {
+      logp_value_ = logp();
+
       const double thresh = 0.1;
       // FIXME: this should possibly related to the overall size/dimension
       // of the parmaeters to be estimtated, as there is somewhat of a leverage effect
@@ -178,7 +176,8 @@ namespace cppbugs {
     }
 
     void run(int iterations, int burn, int thin) {
-      if(logp()==-std::numeric_limits<double>::infinity()) {
+      logp_value_ = logp();
+      if(logp_value_==-std::numeric_limits<double>::infinity()) {
         throw std::logic_error("ERROR: cannot start from a logp of -Inf.");
       }
 
@@ -191,11 +190,8 @@ namespace cppbugs {
     }
 
     void sample(int iterations, int burn, int adapt, int thin) {
-
-
       if(iterations % thin) {
-        std::cout << "ERROR: interations not a multiple of thin." << std::endl;
-        return;
+        throw std::logic_error("ERROR: iterations not a multiple of thin.");
       }
 
       // setup logp's etc.
