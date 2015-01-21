@@ -257,6 +257,12 @@ namespace arma {
 
 }
 
+namespace arma {
+  bool all(const bool x) {
+    return x;
+  }
+}
+
 // Stochastic/Math related functions
 namespace cppbugs {
 
@@ -277,14 +283,6 @@ namespace cppbugs {
     return x.n_elem;
   }
 
-  bool any(const bool x) {
-    return x;
-  }
-
-  bool any(const arma::umat& x) {
-    const arma::umat ans(arma::find(x,1));
-    return ans.n_elem > 0;
-  }
 
   static inline double square(double x) {
     return x*x;
@@ -311,39 +309,39 @@ namespace cppbugs {
 
   template<typename T, typename U, typename V>
   double uniform_logp(const T& x, const U& lower, const V& upper) {
-    return (any(x < lower) || any(x > upper)) ? -std::numeric_limits<double>::infinity() : -arma::accu(log_approx(upper - lower));
+    if(!arma::all(x > lower) || !arma::all(x < upper))
+      return -std::numeric_limits<double>::infinity();
+    return -arma::accu(log_approx(upper - lower));
   }
 
   template<typename T, typename U, typename V>
   double gamma_logp(const T& x, const U& alpha, const V& beta) {
-    return any(x < 0 ) ?
-      -std::numeric_limits<double>::infinity() :
+    if(!arma::all(x > 0))
+      return -std::numeric_limits<double>::infinity();
+    return
       arma::accu(arma::schur((alpha - 1.0),log_approx(x)) - arma::schur(beta,x) - lgamma(alpha) + arma::schur(alpha,log_approx(beta)));
   }
 
   template<typename T, typename U, typename V>
   double beta_logp(const T& x, const U& alpha, const V& beta) {
-    const double one = 1.0;
-    return any(x <= 0 ) || any(x >= 1 ) || any(alpha <= 0) || any(beta <= 0) ?
-      -std::numeric_limits<double>::infinity() :
-      arma::accu(lgamma(alpha+beta) - lgamma(alpha) - lgamma(beta) + (alpha-one)*log_approx(x) + (beta-one)*log_approx(one-x));
+    if(!arma::all(x > 0) || !arma::all(x < 1) ||
+       !arma::all(alpha > 0) || !arma::all(beta > 0))
+      return -std::numeric_limits<double>::infinity();
+    return arma::accu(lgamma(alpha+beta) - lgamma(alpha) - lgamma(beta) + arma::schur(alpha - 1.0, log_approx(x)) + arma::schur(beta - 1.0, log_approx(1.0 - x)));
   }
 
   template<typename T, typename U, typename V>
   double binom_logp(const T& x, const U& n, const V& p) {
-    if(any(p <= 0) || any(p >= 1) || any(x < 0)  || any(x > n)) {
+    if(!arma::all(x >= 0) || !arma::all(x <= n))
       return -std::numeric_limits<double>::infinity();
-    }
     return arma::accu(arma::schur(x,log_approx(p)) + arma::schur((n-x),log_approx(1-p)) + arma::factln(n) - arma::factln(x) - arma::factln(n-x));
   }
 
   template<typename T, typename U>
   double bernoulli_logp(const T& x, const U& p) {
-    if( any(p <= 0 ) || any(p >= 1) || any(x < 0)  || any(x > 1) ) {
+    if(!arma::all(x >= 0) || !arma::all(x <= 1))
       return -std::numeric_limits<double>::infinity();
-    } else {
-      return arma::accu(arma::schur(x,log_approx(p)) + arma::schur((1-x), log_approx(1-p)));
-    }
+    return arma::accu(arma::schur(x,log_approx(p)) + arma::schur((1-x), log_approx(1-p)));
   }
 
   // sigma denotes cov matrix rather than precision matrix
