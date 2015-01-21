@@ -21,8 +21,6 @@
 #include <stdexcept>
 #include <cmath>
 #include <armadillo>
-#include <boost/math/special_functions/gamma.hpp>
-#include <boost/math/special_functions/factorials.hpp>
 
 namespace cppbugs {
 
@@ -134,7 +132,7 @@ namespace arma {
 
   template<> template<typename eT> arma_hot arma_pure arma_inline eT
   eop_core<eop_lgamma>::process(const eT val, const eT  ) {
-    return boost::math::lgamma(val);
+    return lgamma(val);
   }
 
   // Base
@@ -157,7 +155,6 @@ namespace arma {
 
 namespace arma {
   // factln
-
   double factln(const int i) {
     static std::vector<double> factln_table;
 
@@ -166,15 +163,14 @@ namespace arma {
     }
 
     if(i > 100) {
-      return boost::math::lgamma(static_cast<double>(i) + 1);
+      return ::lgamma(double(i) + 1);
     }
 
     if(factln_table.size() < static_cast<size_t>(i+1)) {
       for(int j = factln_table.size(); j < (i+1); j++) {
-        factln_table.push_back(std::log(boost::math::factorial<double>(static_cast<double>(j))));
+        factln_table.push_back(::lgamma(double(j) + 1));
       }
     }
-    //for(auto v : factln_table) { std::cout << v << "|"; }  std::cout << std::endl;
     return factln_table[i];
   }
 
