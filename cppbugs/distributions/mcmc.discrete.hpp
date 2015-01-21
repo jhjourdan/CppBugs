@@ -37,7 +37,7 @@ namespace cppbugs {
     inline double calc() const {
       if(x_ < 0 || x_ >= (int)p_.n_elem)
         return -std::numeric_limits<double>::infinity();
-      return log_approx(p_[x_]);
+      return log_approx(p_[x_]) - log_approx(arma::accu(p_));
     }
   };
 
@@ -53,7 +53,7 @@ namespace cppbugs {
       double sum = 0;
       for(unsigned i = 0; i < x_.n_elem; i++)
         sum += log_approx(p_[x_[i]]);
-      return sum;
+      return sum - x_.n_elem * log_approx(arma::accu(p_));
     }
   };
 
