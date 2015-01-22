@@ -54,7 +54,7 @@ namespace cppbugs {
       }
     }
 
-    double uniform() { return uniform_rng_(); }
+    double uniform() { return uniform_rng_(generator_); }
   };
 
 } // namespace cppbugs
