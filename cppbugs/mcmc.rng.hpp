@@ -18,22 +18,21 @@
 #ifndef MCMC_RNG_HPP
 #define MCMC_RNG_HPP
 
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
+#include <random>
 #include <cppbugs/mcmc.rng.base.hpp>
 
 namespace cppbugs {
 
   template<typename T>
   class SpecializedRng : public RngBase {
+  private:
     T generator_;
-    boost::uniform_real<double> uniform_rng_dist_;
-    boost::variate_generator<T&, boost::uniform_real<double> > uniform_rng_;
+    std::uniform_real_distribution<double> uniform_rng_;
     double next_norm_;
   public:
-    SpecializedRng(): RngBase(),
-                      uniform_rng_dist_(0, 1),
-                      uniform_rng_(generator_, uniform_rng_dist_) {
+    SpecializedRng(long seed): RngBase(),
+                               generator_(seed),
+                               uniform_rng__(0, 1) {
       next_norm_ = NAN;
     }
 
@@ -41,8 +40,8 @@ namespace cppbugs {
       if(next_norm_ != next_norm_) {
         double x, y, s;
         do {
-          x = uniform_rng_()-0.5;
-          y = uniform_rng_()-0.5;
+          x = uniform_rng_(generator_)-0.5;
+          y = uniform_rng_(generator_)-0.5;
           s = x*x+y*y;
         } while(s > 0.25 || s == 0.);
         double coef = sqrt(-2*log_approx(s*4)/s);
@@ -54,6 +53,7 @@ namespace cppbugs {
         return r;
       }
     }
+
     double uniform() { return uniform_rng_(); }
   };
 

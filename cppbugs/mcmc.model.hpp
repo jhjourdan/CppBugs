@@ -47,7 +47,11 @@ namespace cppbugs {
     void tally() { for(auto v : dynamic_nodes) { v->tally(); } }
     static bool bad_logp(const double value) { return std::isnan(value) || value == -std::numeric_limits<double>::infinity() ? true : false; }
   public:
-    MCModel(std::function<void ()> update_): accepted_(0), rejected_(0), logp_value_(-std::numeric_limits<double>::infinity()), old_logp_value_(-std::numeric_limits<double>::infinity()), update(update_) {}
+    MCModel(std::function<void ()> update_, long seed = 42):
+      accepted_(0), rejected_(0),
+      logp_value_(-std::numeric_limits<double>::infinity()),
+      old_logp_value_(-std::numeric_limits<double>::infinity()), update(update_),
+      rng_(seed) {}
     ~MCModel() {
       // use data_node_map as delete list
       // only objects allocated by this class are inserted thre
