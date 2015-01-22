@@ -32,7 +32,7 @@ namespace cppbugs {
   public:
     SpecializedRng(long seed): RngBase(),
                                generator_(seed),
-                               uniform_rng__(0, 1) {
+                               uniform_rng_(0, 1) {
       next_norm_ = NAN;
     }
 
